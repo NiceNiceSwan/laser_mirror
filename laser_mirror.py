@@ -101,3 +101,39 @@ if __name__ == "__main__":
     result = angle_between_points(mirror, laser_origin)
     print(result)
     print(result == 270)
+
+    
+    print("\ntest3")
+    laser_origin = position(0, 2)
+    mirror = position(2, 2)
+    destination = position(2, 0)
+
+    result = one_sided_mirror_angle(laser_origin, mirror, destination)
+    print(result)
+    print(result == 315)
+
+    result = angle_between_points(mirror, destination)
+    print(result)
+    print(result == 0)
+
+    result = angle_between_points(mirror, laser_origin)
+    print(result)
+    print(result == 270)
+
+    
+    print("\ntest3")
+    laser_origin = position(2, 2)
+    mirror = position(0, 2)
+    destination = position(0, 0)
+
+    result = one_sided_mirror_angle(laser_origin, mirror, destination)
+    print(result)
+    print(result == 45)
+
+    result = angle_between_points(mirror, destination)
+    print(result)
+    print(result == 0)
+
+    result = angle_between_points(mirror, laser_origin)
+    print(result)
+    print(result == 90)
