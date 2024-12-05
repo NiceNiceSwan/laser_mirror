@@ -7,14 +7,14 @@ class position:
     x: int
     y: int
 
-
+# calculates the distance between 2 points
 def distance(position_1: position, position_2: position) -> float:
     distance_x = position_1.x - position_2.x
     distance_y = position_1.y - position_2.y
     total_distance = numpy.sqrt(distance_x**2 + distance_y**2)
     return total_distance
 
-
+# finds in which quarter position 2 is in relation to position 1
 def find_quarter(position_1: position, position_2: position) -> int:
     if position_1.x <= position_2.x and position_1.y > position_2.y:
         return 0
@@ -27,42 +27,30 @@ def find_quarter(position_1: position, position_2: position) -> int:
     quit("couldn't find quarter")
 
 
-def main():
-    laser_origin_point = position(2, 0)
-    mirror_position = position(0, 0)
-    destination_point = position(4, 5)
-    angle_to_laser: int = 0
-    angle_to_destination: int = 0
-
-    origin_mirror_distance_x = numpy.abs(laser_origin_point.x - mirror_position.x)
-    origin_mirror_distance_y = numpy.abs(laser_origin_point.y - mirror_position.y)
-    origin_mirror_distance = distance(mirror_position, laser_origin_point)
-
-    laser_quarter = find_quarter(mirror_position, laser_origin_point)
-    if laser_quarter == 0 or laser_quarter == 180:
-        angle_to_laser = round(numpy.degrees(numpy.arcsin(origin_mirror_distance_x / origin_mirror_distance)))
-    if laser_quarter == 90 or laser_quarter == 270:
-        angle_to_laser = round(numpy.degrees(numpy.arcsin(origin_mirror_distance_y / origin_mirror_distance)))
+def angle_between_points(origin: position, destination: position) -> int:
+    distance_x = numpy.abs(destination.x - origin.x)
+    distance_y = numpy.abs(destination.y - origin.y)
+    _distance = distance(origin, destination)
     
-    print("laser quarter: ", laser_quarter)
-    print("angle in quarter: ", angle_to_laser)
-    print("Global angle: ", angle_to_laser + laser_quarter)
-    angle_to_laser += laser_quarter
+    destination_quarter = find_quarter(origin, destination)
 
-    mirror_destination_distance_x = numpy.abs(destination_point.x - mirror_position.x)
-    mirror_destination_distance_y = numpy.abs(destination_point.y - mirror_position.y)
-    mirror_destination_distance = distance(mirror_position, destination_point)
-    
-    destination_quarter = find_quarter(mirror_position, destination_point)
+    # we select whethet to count the sinus from distance x or distance y, depending on the quarter the destination is in
     if destination_quarter == 0 or destination_quarter == 180:
-        angle_to_destination = round(numpy.degrees(numpy.arcsin(mirror_destination_distance_x / mirror_destination_distance)))
+        angle_to_destination = round(numpy.degrees(numpy.arcsin(distance_x / _distance)))
     if destination_quarter == 90 or destination_quarter == 270:
-        angle_to_destination = round(numpy.degrees(numpy.arcsin(mirror_destination_distance_y / mirror_destination_distance)))
+        angle_to_destination = round(numpy.degrees(numpy.arcsin(distance_y / _distance)))
 
-    print("destination quarter: ", destination_quarter)
-    print("angle in quarter: ", angle_to_destination)
-    print("Global angle: ", angle_to_destination + destination_quarter)
+    # print("destination quarter: ", destination_quarter)
+    # print("angle in quarter: ", angle_to_destination)
+    # print("Global angle: ", angle_to_destination + destination_quarter)
+
     angle_to_destination += destination_quarter
+    return angle_to_destination
+
+
+def one_sided_mirror_angle(laser_origin: position, mirror: position, destination: position) -> int:
+    angle_to_laser: int = angle_between_points(mirror, laser_origin)
+    angle_to_destination: int = angle_between_points(mirror, destination)
 
     # we check the angle between the 2 points
     angle = numpy.abs(angle_to_destination - angle_to_laser)
@@ -74,9 +62,42 @@ def main():
     # if the angle between the points is higher than 180, we must offset the final angle by 180 degrees
     if numpy.abs(angle_to_destination - angle_to_laser) >= 180:
         angle = (angle + 180) % 360
-    else:
-        angle %= 360
-    print(angle)
+    return angle
 
 
-main()
+# test data
+if __name__ == "__main__":
+    print("test1")
+    laser_origin = position(2, 0)
+    mirror = position(0, 0)
+    destination = position(0, 2)
+
+    result = one_sided_mirror_angle(laser_origin, mirror, destination)
+    print(result)
+    print(result == 135)
+
+    result = angle_between_points(mirror, destination)
+    print(result)
+    print(result == 180)
+
+    result = angle_between_points(mirror, laser_origin)
+    print(result)
+    print(result == 90)
+
+    
+    print("\ntest2")
+    laser_origin = position(0, 0)
+    mirror = position(2, 0)
+    destination = position(2, 2)
+
+    result = one_sided_mirror_angle(laser_origin, mirror, destination)
+    print(result)
+    print(result == 225)
+
+    result = angle_between_points(mirror, destination)
+    print(result)
+    print(result == 180)
+
+    result = angle_between_points(mirror, laser_origin)
+    print(result)
+    print(result == 270)
